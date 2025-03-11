@@ -3,6 +3,8 @@ import { NewPatient, NonSensitivePatient, Patient } from "../types";
 import { v1 as uuid } from "uuid";
 
 const getEntries = () => {
+  console.log("getEntreis");
+
   return patientData;
 };
 

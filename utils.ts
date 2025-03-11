@@ -1,4 +1,4 @@
-import { NewPatient } from "./types";
+import { NewPatient, Gender } from "./types";
 
 const isString = (obj: unknown): obj is string => {
   return typeof obj === "string";
@@ -29,27 +29,43 @@ const parseGenericString = (str: unknown, field: string): string => {
   return str;
 };
 
-const toNewPatient = (obj: unknown): NewPatient => {
-  if (!obj || typeof obj !== "object") {
-    throw new Error("Incorrect or missing data");
-  }
-  if (
-    "name" in obj &&
-    "dateOfBirth" in obj &&
-    "ssn" in obj &&
-    "gender" in obj &&
-    "occupation" in obj
-  ) {
-    const newPatient = {
-      name: parseName(obj.name),
-      dateOfBirth: parseDateOfBirth(obj.dateOfBirth),
-      ssn: parseGenericString(obj.ssn, "ssn"),
-      gender: parseGenericString(obj.gender, "gender"),
-      occupation: parseGenericString(obj.occupation, "occupation"),
-    };
-    return newPatient;
-  }
-  throw new Error("Incorrect data: some fields are missing");
+const isGender = (str: string): str is Gender => {
+  return Object.values(Gender)
+    .map((x) => x.toString())
+    .includes(str);
 };
 
-export default { toNewPatient };
+const parseGender = (str: unknown): Gender => {
+  if (!isString(str) || !isGender(str)) {
+    throw new Error(`Incorrect or missing ${str}`);
+  }
+  return str;
+};
+
+const isNewPatient = (obj: unknown): obj is NewPatient => {
+  if (
+    !obj ||
+    typeof obj !== "object" ||
+    !("name" in obj) ||
+    !("dateOfBirth" in obj) ||
+    !("ssn" in obj) ||
+    !("gender" in obj) ||
+    !("occupation" in obj)
+  ) {
+    throw new Error("Incorrect or missing data");
+  }
+  return true;
+};
+
+export const toNewPatient = (obj: unknown): NewPatient => {
+  if (!isNewPatient(obj)) {
+    throw new Error("Incorrect data: some fields are missing");
+  }
+  return {
+    name: parseName(obj.name),
+    dateOfBirth: parseDateOfBirth(obj.dateOfBirth),
+    ssn: parseGenericString(obj.ssn, "ssn"),
+    gender: parseGender(obj.gender),
+    occupation: parseGenericString(obj.occupation, "occupation"),
+  };
+};

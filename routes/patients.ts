@@ -2,7 +2,7 @@ import express from "express";
 import { Response } from "express";
 import service from "../services/patientService";
 import { NonSensitivePatient } from "../types";
-import utils from "../utils";
+import { toNewPatient } from "../utils";
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/", (_req, res: Response<NonSensitivePatient[]>) => {
 
 router.post("/", (req, res) => {
   try {
-    const patient = utils.toNewPatient(req.body);
+    const patient = toNewPatient(req.body);
     const newPatient = service.addPatient(patient);
     res.send(newPatient);
   } catch (err) {
