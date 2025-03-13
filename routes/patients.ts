@@ -47,6 +47,19 @@ router.post("/", newPatientParser, (req, res) => {
   }
 });
 
+router.get("/:id", (req, res) => {
+  const id = req.params.id;
+  try {
+    res.send(service.getPatient(id));
+  } catch (error) {
+    let message = "Error: ";
+    if (error instanceof Error) {
+      message += error.message;
+    }
+    res.status(400).json({ error: message });
+  }
+});
+
 router.use(errorMiddleware);
 
 export default router;
