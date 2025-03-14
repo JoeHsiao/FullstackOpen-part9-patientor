@@ -1,4 +1,4 @@
-import { EntryWithoutId, Gender, HealthCheckRating } from "./types";
+import { Gender, HealthCheckRating } from "./types";
 import { z } from "zod";
 
 export const NewPatientSchema = z.object({
@@ -42,17 +42,41 @@ const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
     .optional(),
 });
 
-const EntryTypeSchema = z.union([
-  HealthCheckEntrySchema,
-  HospitalEntrySchema,
-  OccupationalHealthcareEntrySchema,
-]);
+// const EntryTypeSchema = z.union([
+//   HealthCheckEntrySchema,
+//   HospitalEntrySchema,
+//   OccupationalHealthcareEntrySchema,
+// ]);
+// .superRefine((data, ctx) => {
+//   if (data && isNaN(Date.parse(data.date))) {
+//     ctx.addIssue({
+//       code: "invalid_date",
+//       message: `wrong value ${data.date}`,
+//     });
+//   }
+// });
 
 export const parseEntry = (entry: unknown) => {
-  const parsedEntry: EntryWithoutId = EntryTypeSchema.parse(entry);
+  if (!entry || !(typeof entry === "object") || !("type" in entry)) {
+    throw new Error("Invalid type of entry");
+  }
+
+  switch (entry.type) {
+    case "HealthCheck": {
+      return HealthCheckEntrySchema.parse(entry);
+    }
+    case "Hospital": {
+      return HospitalEntrySchema.parse(entry);
+    }
+    case "OccupationalHealthcare": {
+      return OccupationalHealthcareEntrySchema.parse(entry);
+    }
+    default:
+      throw new Error(`Unexpected type: ${entry.type}`);
+  }
+  // const parsedEntry: EntryWithoutId = EntryTypeSchema.parse(entry);
   // if (!parsedEntry.success) {
   //   console.log(parsedEntry);
   //   throw new Error("Invalid entry");
   // }
-  return parsedEntry;
 };

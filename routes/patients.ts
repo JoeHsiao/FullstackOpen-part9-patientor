@@ -14,12 +14,7 @@ import patientService from "../services/patientService";
 const router = express.Router();
 
 const parseZodError = (error: z.ZodError) => {
-  let message = error.issues[0].message;
-  if ("unionErrors" in error.issues[0]) {
-    const unionError = error.issues[0].unionErrors[0];
-    message = unionError.issues.map((i) => i.message).join("; ");
-  }
-  return message;
+  return error.issues.map((i) => i.message);
 };
 
 const errorMiddleware = (
@@ -29,8 +24,7 @@ const errorMiddleware = (
   next: NextFunction
 ) => {
   if (error instanceof z.ZodError) {
-    const message = parseZodError(error);
-    res.status(400).send({ error: message });
+    res.status(400).send({ error: parseZodError(error) });
   } else {
     next(error);
   }
