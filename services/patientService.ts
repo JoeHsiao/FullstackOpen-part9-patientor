@@ -47,7 +47,7 @@ const addEntry = (id: string, entry: EntryWithoutId) => {
   }
   const entryWithId = { ...entry, id: uuid() };
   patient.entries.push(entryWithId);
-  return patient;
+  return entryWithId;
 };
 
 export default {

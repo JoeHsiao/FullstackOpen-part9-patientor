@@ -1,4 +1,4 @@
-import { Gender, HealthCheckRating } from "./types";
+import { EntryWithoutId, Gender, HealthCheckRating } from "./types";
 import { z } from "zod";
 
 export const NewPatientSchema = z.object({
@@ -49,9 +49,10 @@ const EntryTypeSchema = z.union([
 ]);
 
 export const parseEntry = (entry: unknown) => {
-  const parsedEntry = EntryTypeSchema.safeParse(entry);
-  if (!parsedEntry.success) {
-    throw new Error("Invalid entry");
-  }
-  return parsedEntry.data;
+  const parsedEntry: EntryWithoutId = EntryTypeSchema.parse(entry);
+  // if (!parsedEntry.success) {
+  //   console.log(parsedEntry);
+  //   throw new Error("Invalid entry");
+  // }
+  return parsedEntry;
 };

@@ -2,16 +2,25 @@ import express, { NextFunction } from "express";
 import { Request, Response } from "express";
 import service from "../services/patientService";
 import {
+  Entry,
   EntryWithoutId,
   NewPatient,
   NonSensitivePatient,
-  Patient,
 } from "../types";
 import { NewPatientSchema, parseEntry } from "../utils";
 import { z } from "zod";
 import patientService from "../services/patientService";
 
 const router = express.Router();
+
+const parseZodError = (error: z.ZodError) => {
+  let message = error.issues[0].message;
+  if ("unionErrors" in error.issues[0]) {
+    const unionError = error.issues[0].unionErrors[0];
+    message = unionError.issues.map((i) => i.message).join("; ");
+  }
+  return message;
+};
 
 const errorMiddleware = (
   error: unknown,
@@ -20,7 +29,8 @@ const errorMiddleware = (
   next: NextFunction
 ) => {
   if (error instanceof z.ZodError) {
-    res.status(400).send({ error: error.issues });
+    const message = parseZodError(error);
+    res.status(400).send({ error: message });
   } else {
     next(error);
   }
@@ -87,12 +97,12 @@ router.post(
   newEntryParser,
   (
     req: Request<{ id: string }, unknown, EntryWithoutId>,
-    res: Response<Patient | { error: string }>
+    res: Response<Entry | { error: string }>
   ) => {
     const entryId = req.params.id;
     try {
-      const updatedPatient = patientService.addEntry(entryId, req.body);
-      res.json(updatedPatient);
+      const newEntry = patientService.addEntry(entryId, req.body);
+      res.json(newEntry);
     } catch (error) {
       let message = "Error: ";
       if (error instanceof Error) {
