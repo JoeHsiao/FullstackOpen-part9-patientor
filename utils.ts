@@ -42,20 +42,6 @@ const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
     .optional(),
 });
 
-// const EntryTypeSchema = z.union([
-//   HealthCheckEntrySchema,
-//   HospitalEntrySchema,
-//   OccupationalHealthcareEntrySchema,
-// ]);
-// .superRefine((data, ctx) => {
-//   if (data && isNaN(Date.parse(data.date))) {
-//     ctx.addIssue({
-//       code: "invalid_date",
-//       message: `wrong value ${data.date}`,
-//     });
-//   }
-// });
-
 export const parseEntry = (entry: unknown) => {
   if (!entry || !(typeof entry === "object") || !("type" in entry)) {
     throw new Error("Invalid type of entry");
@@ -74,9 +60,4 @@ export const parseEntry = (entry: unknown) => {
     default:
       throw new Error(`Unexpected type: ${entry.type}`);
   }
-  // const parsedEntry: EntryWithoutId = EntryTypeSchema.parse(entry);
-  // if (!parsedEntry.success) {
-  //   console.log(parsedEntry);
-  //   throw new Error("Invalid entry");
-  // }
 };
